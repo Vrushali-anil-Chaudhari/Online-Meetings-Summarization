@@ -1,0 +1,415 @@
+
+SPEAKER 1 0:00:00
+Yeah, we had a long discussion about how easy we want to make it for people to bleep things out, so Morgan wants to make it hard. I didn't even check yesterday. It didn't move yesterday either when I started it. I don't know if it doesn't like both of them. You know, I discovered something yesterday on these wireless ones. You can tell if it's picking up breath noise and stuff. Yeah, it has a little indicator on it on the AF. So if you breathe and then you see AF go off, then you know it's picking up your mouth noise. 
+SPEAKER 2 0:00:49
+In fact, if you listen to just the channels of people not talking, it's like... 
+SPEAKER 1 0:00:53
+Yeah! What, did you see Hannibal recently or something? Exactly. Very disconcerting. 
+SPEAKER 2 0:01:02
+I was going to try to get out of here in half an hour because I really appreciate people coming. The main thing that I was going to ask people to help with today is to give input on what kinds of database format we should use in starting to link up things like word transcripts and annotations of word transcripts, so anything that transcribers or discourse coders would ever put in the signal, with time marks for words and phone boundaries and all the stuff we get out of the forced alignments in the recognizer. I think a starting point is clearly the channelized output of Dave Gelbart's program, which John brought a copy of. 
+SPEAKER 1 0:01:52
+Yeah, I'm familiar with that. I mean, I sort of already have developed an XML format for this sort of stuff, and so the only question is, is it the sort of thing that you want to use or not? Have you looked at that? I mean, I had a web page up. 
+SPEAKER 2 0:02:05
+Right, so I actually mostly need to be able to link up or... 
+SPEAKER 1 0:02:11
+You mean this... 
+SPEAKER 2 0:02:12
+It's a question both of what the representation is... 
+SPEAKER 1 0:02:14
+I guess I am going to be standing up and drawing on the board. 
+SPEAKER 2 0:02:16
+Okay, yeah, so you should definitely. 
+SPEAKER 1 0:02:17
+So it definitely had that as a concept, so that it has a single timeline, and then you can have lots of different sections, each of which have IDs attached to it, and then you can refer from other sections to those IDs if you want to, so that you start with a timeline tag, timeline, and then you have a bunch of times. I don't remember exactly what my notation was, but... Yeah, T equals 1.32, and then I also had optional things like accuracy, and then ID equals T10, and then I also wanted to be able to not specify specifically what the time was and just have a stamp. Yeah, so these are arbitrary assigned by a program, not by a user, so you have a whole bunch of those, and then somewhere further down you might have something like an utterance tag, which has start equals T17, end equals T18. So what that's saying is we know it starts at this particular time. We don't know when it ends, right? But it ends at this T18, which may be somewhere else. We say there's another utterance. We don't know what the time actually is, but we know that it's the same time as this end time. Yeah, 38, whatever you want. So you're essentially defining a lattice. Yes, exactly. And then these also have IDs. Right? So you could have some sort of other tag later in the file that would be something like... Oh, I don't know. Noise type equals door slam, you know? And then you could either say time equals a particular time mark or you could do other sorts of references. Or you might have a prosody. Prosody, right? 
+SPEAKER 2 0:04:33
+D, T? It's an O instead of an I, but the D is good. 
+SPEAKER 1 0:04:37
+It's a good D. So you could have some sort of type here, and then you could have the utterance that it's referring to could be U17 or something like that. Okay. 
+SPEAKER 2 0:04:50
+So that seems great for all of the encoding of things with time. I guess my question is more, what do you do with, say, a forced alignment? You've got all these phone labels, and what do you do if you just conceptually, if you get transcriptions where the words are staying but the time boundaries are changing because you've got a new recognition output? What's the sequence of going from the waveforms that stay the same, the transcripts that may or may not change, and the utterance, which are the time boundaries that may or may not change? 
+SPEAKER 1 0:05:37
+That's actually very nicely handled here because all you'd have to change is the timestamps in the timeline without changing the ID. Right. That's why you do that extra level of indirection, so that you can just change the timeline. Except the timeline is going to be huge. Yes. Especially at the phone level. Suppose you have a phone-level alignment. I don't think I would do this for phone-level. I think for phone-level you want to use some sort of binary representation because it'll be too dense otherwise. 
+SPEAKER 2 0:06:09
+If you were doing that and you had this sort of companion thing that gets called up for phone-level, what would that look like? 
+SPEAKER 1 0:06:15
+I would use just an existing way of doing it. It's just a matter of it being bigger. But if you have, you know, barring memory limitations, I mean this is still... It's parsing limitations. I don't want to have this text file that you have to read in the whole thing to do something very simple for. Oh, no, you would use it only for purposes where you actually want the phone-level information. 
+SPEAKER 2 0:06:41
+So you could have some file that configures how much information you want in your XML or something. 
+SPEAKER 1 0:06:47
+Right. I'm imagining you'd have multiple versions of this depending on the information that you want. I'm just... What I'm wondering is whether... I think for word-level this would be okay. For word-level, it's all right. For lower than word-level, you're talking about so much data that I just, I don't know. I don't know if that... 
+SPEAKER 2 0:07:05
+I mean, we actually have... So one thing that Don is doing... 
+SPEAKER 1 0:07:07
+Lattices are big, too. 
+SPEAKER 2 0:07:08
+We're running for every frame, you get a pitch value. And not only one pitch value, but different kinds of pitch values. 
+SPEAKER 1 0:07:14
+Yeah, I mean, for something like that, I would use p-file. Or any frame-level stuff, I would use p-file. 
+SPEAKER 2 0:07:20
+Meaning? 
+SPEAKER 1 0:07:21
+That's a... Well, or something like it. XE has a format for frame-level representation of features. 
+SPEAKER 2 0:07:27
+Okay. 
+SPEAKER 1 0:07:28
+That you could call... 
+SPEAKER 2 0:07:29
+That you would tie into this representation with, like, an ID. Right. 
+SPEAKER 1 0:07:33
+Or there's a particular way in XML to refer to external resources. Okay. So you would say, refer to this external file. So that external file wouldn't be in... But what's the advantage of doing that versus just putting it into this format? More compact, which I think is better. 
+SPEAKER 2 0:07:52
+I mean, if you did it at this... 
+SPEAKER 1 0:07:54
+You don't want to do it with that. Anything at frame-level, you'd better encode binary, or it's going to be really painful. Or you just... I mean, I like text formats. You can always gzip them. And, you know, decompress them on the fly if space is really... I was thinking the advantage is that we can share this with other people. Well, you're talking about one per frame. You're talking about gigabyte-sized files. You're going to actually run out of space in your file system for one file. Right? Because you have a 2-gigabyte limit on most OSs. I would say, okay, so frame-level is probably not a good idea. But for phone-level stuff, it's perfectly... Like, phones are syllables. 
+SPEAKER 2 0:08:29
+Phones are every five frames, though, so... Something like that. 
+SPEAKER 1 0:08:33
+But most of the frames are actually not speech. So, you know, people don't... 
+SPEAKER 2 0:08:39
+Yeah, but we actually... 
+SPEAKER 1 0:08:40
+Look at it, words times the average number of phones in an English word is, I don't know, five, maybe? So look at it, number of words times five. 
+SPEAKER 2 0:08:49
+So you mean pause phones take up a lot of the... Long pause phones. 
+SPEAKER 1 0:08:52
+Yeah. 
+SPEAKER 2 0:08:53
+Exactly. Okay, that's true. But you do have to keep them in there. 
+SPEAKER 1 0:08:56
+So I think it's debatable whether you want to do phone-level in the same thing. But I think anything at frame-level. Even p-file is too verbose. I would use something tighter than p-files. 
+SPEAKER 2 0:09:06
+Are you familiar with it? I haven't seen this particular format. 
+SPEAKER 1 0:09:09
+I've used them. I don't know what their structure is. I forgot. But p-file for each frame is storing a vector of Kepstrol or PLP values, right? It's whatever you want, actually. So what's nice about the p-file, built into it is the concept of frames, utterances, sentences, that sort of thing, that structure. And then also attached to it is an arbitrary vector of values. And it can take different types. So they don't all have to be floats. You can have integers and you can have doubles and all that sort of stuff. 
+SPEAKER 2 0:09:40
+That sounds about what I... 
+SPEAKER 1 0:09:42
+Right, and it has a header format that describes it to some extent. So the only problem with it is it's actually storing the utterance numbers and the frame numbers in the file, even though they're always sequential. And so it does waste a lot of space. But it's still a lot tighter than ASCII. And we have a lot of tools already to deal with it. Okay. 
+SPEAKER 2 0:10:05
+Is there some documentation? Yeah, there's a ton of it. 
+SPEAKER 1 0:10:07
+Okay, great. Man pages and source code and... 
+SPEAKER 2 0:10:11
+I mean, that sounds good. I was just looking for something. I'm not a database person, but something sort of standard enough that, you know, if we start using this, we can give it out. Other people can work on it. 
+SPEAKER 1 0:10:21
+Yeah, it's not standard. I mean, it's something that we developed at ICSI. But it's been used here. But it's been used here. And, you know, we have a well-configured system that you can distribute for free. I mean, it must be the equivalent of whatever you guys use to store your computed features in, right? Yeah, we have... Actually, we use a generalization of the sphere format. But... Yeah, so there's something like that. But it's... And I think... What does HTK do for features? Or does it even have a concept of features? I mean, Entropic has their own feature format. It's called, like, SD or something. Yeah. SF or something like that. Yeah. I'm just wondering, would it be worthwhile to use that instead? 
+SPEAKER 2 0:11:07
+Yeah, this is exactly the kind of decision. 
+SPEAKER 1 0:11:09
+People don't typically share this kind of stuff, right? I mean... They generate their own. 
+SPEAKER 2 0:11:14
+Actually, I just... You know, we've done this stuff on prosodics. And three or four places have asked for those prosodic files. And we just have an ASCII. 
+SPEAKER 1 0:11:24
+All right. 
+SPEAKER 2 0:11:25
+We put it frame by frame, which is fine. But it gets unwieldy to go in and query these files with really huge files. 
+SPEAKER 1 0:11:32
+Right. 
+SPEAKER 2 0:11:33
+And we could do it. I was just thinking if there's something that... 
+SPEAKER 1 0:11:35
+And, again, if you have a... 
+SPEAKER 2 0:11:36
+Where all the frame values are. 
+SPEAKER 1 0:11:38
+If you have a two-hour-long meeting, that's going to... They're quite large. Yeah. I mean, they'd be enormous. 
+SPEAKER 2 0:11:44
+These are for ten-minute switchboard conversations. 
+SPEAKER 1 0:11:46
+Right. 
+SPEAKER 2 0:11:47
+So it's doable. It's just that you can only store a feature vector at frame by frame. And it doesn't have any kind of... 
+SPEAKER 1 0:11:55
+Is the sharing part of this a pretty important consideration? Or is that just sort of a nice thing to have? 
+SPEAKER 2 0:12:04
+I don't know enough about what we're going to do with the data. But I thought it would be good to get something that other people can use or adopt for their own kinds of encoding. We have to make some decision about what to do. And especially for the prosody work, what it ends up being is you get features from the signal. And, of course, those change every time your alignments change. So you rerun a recognizer, you want to recompute your features, and then keep the database up to date. Or you change a word or you change an utterance boundary segment, which is going to happen a lot. And so I wanted something where all of this can be done in an elegant way and that if somebody wants to try something or compute something else, that it can be done flexibly. It doesn't have to be pretty. It just has to be easy to use. 
+SPEAKER 1 0:12:57
+The other thing, we should look at Atlas, the NIST thing, and see if they have anything at that level. I'm not sure what to do about this with Atlas because they chose a different route. I chose something that there are sort of two choices. Your file format can know that you're talking about language and speech, which is what I chose, and time. Or your file format can just be a graph representation. And then the application has to impose the structure on top. So what it looked like Atlas chose is they chose the other way, which was their file format is just nodes and links, and you have to interpret what they mean yourself. 
+SPEAKER 2 0:13:37
+And why did you not choose that? 
+SPEAKER 1 0:13:39
+Because I knew that we were doing speech, and I thought it was better, if you're looking at a raw file, for the tags to say it's an utterance as opposed to the tag to say it's a link. 
+SPEAKER 2 0:13:49
+But other than that, are they compatible? 
+SPEAKER 1 0:13:52
+Yeah, they're reasonably compatible. You could probably translate between them. Well, the other thing is, if we choose to use Atlas, which maybe we should just do, we should just throw this out before we invest a lot of time in it. 
+SPEAKER 2 0:14:05
+So this is what the meeting is about. Because we need to come up with a database like this just to do our work. And I actually don't care, as long as it's something useful to other people, what we choose. So maybe it's... Do you have any idea of how to choose? Because I don't. 
+SPEAKER 1 0:14:22
+I chose this for a couple of reasons. One of them is that it's easy to parse. You don't need a full XML parser. It's very easy to just write a Perl script to parse it. As long as each tag is on one line. Exactly. Which I always do. 
+SPEAKER 2 0:14:36
+And you can have as much information in the tag as you want, right? 
+SPEAKER 1 0:14:40
+Well, I have it structured, right? So each tag has only particular items that it can take. 
+SPEAKER 2 0:14:46
+But you can add to those structures? 
+SPEAKER 1 0:14:49
+Sure. If you... If you have more information. So what NIST would say is that instead of doing this, you would say something like link. Start equals some node ID. End equals some other node ID. And then type would be utterance. So it's very similar. 
+SPEAKER 2 0:15:13
+So why would it be a waste to do it this way, if it's similar enough that we can always translate it? 
+SPEAKER 1 0:15:18
+It probably wouldn't be a waste. It would mean that at some point, if we wanted to switch, we'd just have to... Write a translator. But since they're developing a big... I don't think that's a big deal. 
+SPEAKER 2 0:15:26
+As long as it is... 
+SPEAKER 1 0:15:27
+They're developing a big infrastructure. And so it seems to me that if we want to use that, we might as well go directly to what they're doing, rather than... Something that would be useful. Yeah, see, that's the question. I mean, how stable is their... Are they ready to go? I looked at it... The last time I looked at it was a while ago, probably a year ago, when we first started talking about this. And at that time, at least, it was still not very complete. And so, specifically, they didn't have any external format representation at that time. They just had sort of conceptual node... Annotated transcription graph, which I really liked. And that's exactly what this stuff is based on. Since then, they've developed their own external file format, which is, you know, this sort of thing. And apparently, they've also developed a lot of tools, but I haven't looked at them. Maybe I should. We should find out. 
+SPEAKER 2 0:16:17
+I mean, would the tools run on something like this, if you can translate them in any way? 
+SPEAKER 1 0:16:21
+I mean, that gets at the question. What would worry me is that maybe we might miss a little detail. That would make it very difficult to translate from one to the other. Because it's conceptually close, and they already have or will have tools that everybody else will be using. I mean... Yeah, we might as well. It would be crazy to do something, you know, separate. Yeah. Yeah. So I'll take a closer look at it. 
+SPEAKER 2 0:16:46
+Actually, that would really be the question, just what you feel is, in the long run, the best thing. Because once we start sort of doing this, we don't actually have enough time to probably have to rehash it out again. 
+SPEAKER 1 0:16:59
+The other thing, the other way that I sort of established this was as easy translation to and from the transcriber format. Right. Right. But... 
+SPEAKER 2 0:17:09
+I mean, I like this. This is sort of intuitively easy to actually read, as easy as it could be. But I suppose that as long as they have a type here that specifies... 
+SPEAKER 1 0:17:21
+It's almost the same. The point with this, though, is that you can't really add any supplementary information. Right. So if you suddenly decide that you want... 
+SPEAKER 2 0:17:31
+You have to make a different type. 
+SPEAKER 1 0:17:32
+Yeah. You'd have to make a different type. 
+SPEAKER 2 0:17:34
+So, well, if you look at it, I guess in my mind, I don't know enough. Jane would know better about the types of annotations and... But I imagine that those are things that would... Well, you guys mentioned this, that could span any... It could be in its own channel. It could span time boundaries of any type. Right. It could be instantaneous, things like that. And then from the recognition side, we have backtraces at the phone level. Right. If it can handle that, it could handle states or whatever. And then at the prosody level, we have frame sort of like actual feature files, like these P files or anything like that. And that's sort of the world of things that I... And then we have the aligned channels. Right. 
+SPEAKER 1 0:18:18
+It seems to me you want to keep the frame level stuff separate. 
+SPEAKER 2 0:18:21
+Yeah, I definitely agree. And I wanted to find actually a nicer format or maybe a more compact format than what we used before. Just because you've got 10 channels or whatever and two hours of a meeting, it's... 
+SPEAKER 1 0:18:34
+Now, how would you represent multiple speakers in this framework? Would you represent them as... You would have like a speaker tag or something? There's a speaker tag up at the top which identifies them. And then the way I had it is each churn or each utterance, I don't even remember now, had a speaker ID tag attached to it. Okay. In this format, you would have a different tag which would be linked to the link. 
+SPEAKER 2 0:19:03
+Yeah. 
+SPEAKER 1 0:19:04
+So somewhere else you would have another thing that would be... Let's see, would it be a note or a link? And so this one would have an ID, is link 74 or something like that. And then somewhere up here you would have a link that was referencing L74 and had speaker Adam or something like that. 
+SPEAKER 2 0:19:34
+Actually, it's the channel I think that... 
+SPEAKER 1 0:19:36
+Well, channel or speaker or whatever. 
+SPEAKER 2 0:19:37
+Yeah, channel is what the channelized output... 
+SPEAKER 1 0:19:39
+This isn't quite right. I have to look at it again. But so how in the NIST format do we express a hierarchical relationship between, say, an utterance and the words within it? So how do you tell that these are the words that belong to that utterance? You would have another structure lower down than this that would be saying they're all belonging to this ID. So each thing refers to the utterance that it belongs to. Right. And then each utterance could refer to a turn, and each turn could refer to something higher up. 
+SPEAKER 2 0:20:16
+What if you actually have... So right now what you have as utterance, the closest thing that comes out of the channelized is the stuff between the segment boundaries that the transcribers put in or that Tilo put in, which may or may not actually be... It's usually not the beginning and end of a sentence, say. 
+SPEAKER 1 0:20:35
+Well, that's why I didn't call it a sentence. 
+SPEAKER 2 0:20:37
+Right. So it's like a segment or something. Yeah. So I mean, I assume this is possible that if you have someone annotates the punctuation or whatever when they transcribe, you can say from the beginning of the sentence to the end of the sentence from the annotations, this is a unit, even though it never actually... It's only a unit by virtue of the annotations at the word level. 
+SPEAKER 1 0:21:00
+Sure. I mean, so you would have yet another tag. 
+SPEAKER 2 0:21:03
+That would be a tag somehow. 
+SPEAKER 1 0:21:04
+You'd have another tag which says this is of type sentence. Okay. 
+SPEAKER 2 0:21:07
+But it's just not overtly in the... Because this is exactly the kind of... So... I think that should be possible as long as the... But what I don't understand is where in this type of file that would be expressed. 
+SPEAKER 1 0:21:24
+Right. You would have another tag somewhere. Well, there are two ways of doing it. 
+SPEAKER 2 0:21:29
+Floating before the sentence or floating after the sentence. 
+SPEAKER 1 0:21:31
+You could have some sort of link type, type equals sentence, and ID is S whatever. And then lower down, you could have an utterance. So the type is utterance equals... And you could either say that... No, I don't know. I take that back. So here's the thing. Can you say that this is part of this or do you say this is part of this? I think you would refer up to the sentence. 
+SPEAKER 2 0:22:01
+They're actually overlapping each other sort of. 
+SPEAKER 1 0:22:03
+The thing is that something may be a part of one thing for one purpose and another thing of another purpose. 
+SPEAKER 2 0:22:09
+You have to have another type then, I guess. 
+SPEAKER 1 0:22:12
+Well, let's take... I think I had better look at it again because I'm... So for instance... There's one more level of indirection that I'm forgetting. Suppose you have a word sequence and you have two different segmentations of that same word sequence. Let's say one segmentation is in terms of sentences and another segmentation is in terms of prosodic phrases. And let's say that they don't nest. So a prosodic phrase may cross two sentences or something. I don't know if that's true or not. 
+SPEAKER 2 0:22:49
+Well, it's definitely true with the segment. That's exactly what I meant by the utterances versus the sentences. 
+SPEAKER 1 0:22:54
+So you want to say this word is part of that sentence and this prosodic phrase. But the phrase is not part of the sentence and neither is the sentence part of the phrase. I'm pretty sure that you can do that, but I'm forgetting the exact level of nesting. So you have to have two different pointers from the word one level up. So what you would end up having is a tag saying, here's a word and it starts here and it ends here. And then lower down you would say, here's a prosodic boundary and it has these words in it. And lower down you'd have, here's a sentence and it has these words in it. 
+SPEAKER 2 0:23:24
+So you would be able to go in and say, give me all the words in the prosodic phrase. 
+SPEAKER 1 0:23:29
+So I think that's that. Let me look at it again. The other issue that you had was, how do you actually efficiently find and extract information in a structural of this type? So you gave some examples. 
+SPEAKER 2 0:23:47
+Well, I don't know if this is premature, because I suppose once you get the representation you can do this, but the kinds of things I was worried about is... 
+SPEAKER 1 0:23:59
+No, that's not clear. I mean, sure you can do it, but can you do it... 
+SPEAKER 2 0:24:03
+I mean, I can't do it, but... 
+SPEAKER 1 0:24:07
+You're going to want to do this very quickly or else you'll spend all your time sort of searching through very complex data structures. 
+SPEAKER 2 0:24:14
+Right. You need sort of a paradigm for how to do it. But an example would be, find all the cases in which Adam started to talk while Andreas was talking and his pitch was rising. Andreas' pitch. That kind of thing. 
+SPEAKER 1 0:24:32
+Right. I mean, that's going to be... Is the rising pitch a feature or is it going to be in the same file? 
+SPEAKER 2 0:24:38
+Well, the rising pitch will never be hand-annotated. So all the prosodic features are going to be automatically... 
+SPEAKER 1 0:24:45
+I mean, that's going to be hard regardless, right? Because you're going to have to write a program that goes through your feature file and looks for rising pitches. 
+SPEAKER 2 0:24:52
+Right. So normally what we would do is we would say, what are we going to assign rising pitch to? Are we going to assign it to words? Are we going to just assign it to sort of... When it's rising we have a begin and rise representation, but suppose we dump out this file. For every word we just classify it as rise or fall or neither. 
+SPEAKER 1 0:25:09
+Okay. Well, in that case you would add that to this format. 
+SPEAKER 2 0:25:12
+So we would basically be sort of taking the format and enriching it with things that we want to query in relation to the words that are already in the file and then querying it. 
+SPEAKER 1 0:25:24
+You want sort of a grep that works at the structural... You have that. There's a standard again in XML specifically for searching XML documents, structured XML documents, where you can specify both the content and the structural position. Yeah, but it's not clear that that's... That's relative to the structure of the XML document, not the structure of what you're representing. You use it as a tool, not an end user. It's not an end user thing. You would use that to build your tool to do that sort of search. Because here you're specifying a lattice, so that's the underlying data structure. But as long as the... It's a graph, but... That's different from searching... 
+SPEAKER 2 0:26:04
+It seems like as long as the feature... 
+SPEAKER 1 0:26:06
+Well, no, the whole point is that the text and the lattice are isomorphic. They represent each other completely. So that... 
+SPEAKER 2 0:26:16
+That's true if the features from your acoustics or whatever that are not explicitly in this are at the level of these types. That if you can... 
+SPEAKER 1 0:26:27
+Yeah, but that's going to be the trouble no matter what. No matter what format you choose, you're going to have the difficulty of relating the frame level features. That's right. That's true. That's why I was trying to figure out 
+SPEAKER 2 0:26:37
+what's the best format for this representation. And it's still going to be... It's still going to be not direct. 
+SPEAKER 1 0:26:44
+Right. 
+SPEAKER 2 0:26:45
+Or another example was, you know, where in the language, where in the word sequence are people interrupting? So I guess that one's actually easier. 
+SPEAKER 1 0:26:59
+What about the idea of using a relational database to store the information from the XML? So you would have... XML basically would... You could use the XML to put the data in, and then when you get data out, you put it back in XML. So use XML as sort of... Transfer. The transfer format. But then you store the data in the database, which allows you to do all kinds of good search things. One of the things that Atlas is doing is they're trying to define an API which is independent of the back store. So that you could define a single API and the storage could be flat XML files or a database. My opinion on that is for the sort of stuff that we're doing, I suspect it's overkill to do a full relational database that just a flat file and search tools, I bet, will be enough. But that's the advantage of Atlas, is that if we actually decide to go that route completely and we program to their API, then if we wanted to add a database later, it would be pretty easy. 
+SPEAKER 2 0:28:07
+It seems like the kind of thing you do if... I don't know, if people start adding all kinds of bells and whistles to the data. 
+SPEAKER 1 0:28:14
+And so that might be... 
+SPEAKER 2 0:28:16
+It'd be good for us to use a format where we know we can easily input that to some database if other people are using it, something like that. 
+SPEAKER 1 0:28:26
+I guess I'm just a little hesitant to try to go whole hog on sort of the whole framework that NIST is talking about with Atlas and the database and all that sort of stuff, because it's a big learning curve just to get going. Whereas if we just do a flat file format, sure, it may not be as efficient, but everyone can program in Perl and use it. So as opposed to... I'm still not convinced that you can do much at all on the text, on the flat file, the text representation, because the text representation is going to be not reflecting the structure of your words and annotations. Well, if it's not representing it, then how do you recover it? Of course it's representing it. That's the whole point. What you have to do is you have to basically... Yeah, you can use Perl to read it in and construct an internal representation that is essentially a lattice. But the... Okay, well, that was a different point, right? So what I was saying is that... But that's what you'll have to do. For Perl, if you want to just do Perl, if you wanted to use the structured XML query language, that's a different thing, and it's a set of tools that let you specify given the DDT, DTD of the document, what sorts of structural searches you want to do. So you want to say that you're looking for a tag within a tag within a particular tag that has this particular text in it and refers to a particular value. And so the point isn't that an end user who is looking for a query like you specified wouldn't program it in this language. What you would do is someone would build a tool that used that as a library so that you wouldn't have to construct the internal representations yourself. 
+SPEAKER 2 0:30:22
+See, I think the kinds of questions, at least in the next to the end of this year, are there may be a lot of different ones, but they'll all have a similar nature. They'll be looking at either a word-level prosodic value, like a continuous value, like the slope of something. But we'll do something where we, some kind of data reduction where the prosodic features are either at the word level or at the segment level or something like that. They're not going to be at the phone level and they're not going to be at the frame level when we get done with giving them simpler shapes and things. And so the main thing is just being able, well, I guess the two goals, one that Chuck mentioned is starting out with something that we don't have to start over, that we don't have to throw away if other people want to extend it for other kinds of questions, and being able to at least get enough information out on where we condition the location of features on information that's in the kind of file that you put up there. And that would do it. I mean, for me. 
+SPEAKER 1 0:31:29
+Yeah, I think that there are quick and dirty solutions and then there are long-term, big infrastructure solutions. And so we want to try to pick something that lets us do a little bit of both. 
+SPEAKER 2 0:31:38
+And especially that the representation doesn't have to be thrown away, even if your tools change. 
+SPEAKER 1 0:31:43
+And so it seems to me that I have to look at it again to see whether it can really do what we want, but if we use the Atlas external file representation, it seems like it's rich enough that you could do quick tools, just as I said in Perl, and then later on if we choose to go up the learning curve, we can use the whole Atlas infrastructure. 
+SPEAKER 2 0:32:05
+And that sounds good to me. 
+SPEAKER 1 0:32:06
+Which has all that built in. 
+SPEAKER 2 0:32:08
+So if you would look at that and let us know what you think. I mean, I think we're sort of guinea pigs because I want to get the Prosody work done, but I don't want to waste time, you know, getting the, yeah? 
+SPEAKER 1 0:32:20
+Well, I wouldn't wait for the formats because anything you pick will be able to translate to another form. Well, maybe you should actually look at it yourself too to get a sense of what it is you'll be dealing with because, you know, Adam might have one opinion and you might have another. 
+SPEAKER 2 0:32:38
+Yeah, definitely. 
+SPEAKER 1 0:32:40
+I think the more eyes look at us, the better. 
+SPEAKER 2 0:32:42
+Especially if there's, you know, if someone can help with at least the setup of the right... Oh, hi. 
+SPEAKER 1 0:32:50
+Hey, Jane. 
+SPEAKER 2 0:32:54
+...the right representation, then, you know, I hope it won't... We don't actually need the whole full-blown thing to be ready. So maybe if you guys can look at it and sort of see what... 
+SPEAKER 1 0:33:11
+I think we're... We're about done. 
+SPEAKER 2 0:33:13
+Yeah, wrapping up, but... Yeah, sorry, it's a short meeting, but, well, I don't know, is there anything else? Like, that helps me a lot. 
+SPEAKER 1 0:33:22
+Well, I think the other thing we might want to look at is alternatives to p-file. I mean, the reason I like p-files, I'm already familiar with it. We have expertise here. And so if we pick something else, there's the learning curve problem. But, I mean, it is just something we developed at ICSI. And so... Is there an API? Yeah, there's an API for it. And a bunch of libraries, p-file utilities. And so, basically, the file system... Well, that's going to be a problem no matter what. You have the 2-gigabyte limit on the file system size. And we definitely hit that with broadcast news. Maybe you could extend the API to support, like, splitting up, you know, conceptually one file into smaller files on disk so that you can essentially... Yeah, most of the tools can handle that, so that we didn't do it at the API level, we did it at the tool level. Many of them, you can specify several p-files, and they'll just be done sequentially. Okay. 
+SPEAKER 2 0:34:22
+So I guess, yeah, if you and Don can... If you can show them the p-file stuff. 
+SPEAKER 1 0:34:26
+Sure. I mean, if you do man p-file, or apropos p-file, you'll see a lot. I've used the p-file, I think. I've looked at it at least briefly, I think, when we were doing... I have no idea. I didn't develop it. I think it was Dave Johnson. So it's all part of the QuickNet library. It has all the utilities for it. No, p-files were around way before QuickNet. Oh, were they? P-files were around with RAP, right? It's like the history of Xe. 
+SPEAKER 2 0:34:56
+You worked with p-files. 
+SPEAKER 1 0:34:57
+Yeah. I worked with p-files. I don't remember what the p is now. Is it related to that? No. But there are not... The QuickNet library has a bunch of things in it to handle p-files, so it works pretty well. 
+SPEAKER 2 0:35:12
+And that isn't really, I guess, as important as the main... I don't know what you call it. 
+SPEAKER 1 0:35:18
+It probably stands for fill. Fill cone. It's a fill file? Yeah. That's my guess. Okay. 
+SPEAKER 2 0:35:29
+Well, that's really useful. I mean, this is exactly the kind of thing that I wanted to set up. 
+SPEAKER 1 0:35:36
+Yeah, I've been meaning to look at the Alice stuff again anyway. 
+SPEAKER 2 0:35:40
+I guess it's also sort of a political decision. If you feel like that's a community that would be good to tie into anyway, 
+SPEAKER 1 0:35:48
+then it's something worth doing. As I said, what I did with this stuff, I based it on theirs. It's just they hadn't actually come up with an external format yet. So now that they have come up with a format, it seems pretty reasonable to use it. But let me look at it again. Okay, great. 
+SPEAKER 2 0:36:06
+As I said. 
+SPEAKER 1 0:36:07
+There's one more level of indirection, and I'm just blanking on exactly how it works. I've got to look at it again. 
+SPEAKER 2 0:36:15
+We can start with, I guess, this input from Dave's, which you had printed out, the channelized input. Because he has all of the channels, you know, with the channels and the tag and stuff like that. So that would be directly – 
+SPEAKER 1 0:36:29
+Yep. Easy to map. 
+SPEAKER 2 0:36:31
+Yeah. So then it would just be a matter of making sure to handle the annotations that are not at the word level. 
+SPEAKER 1 0:36:39
+Where are those annotations coming from? 
+SPEAKER 2 0:36:41
+Oh, right. Jane would. 
+SPEAKER 1 0:36:48
+Are you talking about the overlap annotations? 
+SPEAKER 2 0:36:50
+Yeah, any kind of annotation that, like, isn't already there. You know, anything you can envision. 
+SPEAKER 1 0:36:55
+So what I was imagining was – so Dave says we can have unlimited numbers of green ribbons. And so put a green ribbon on for an overlap code. And since we – I think it's important to remain flexible regarding the time bins for now. And so it's nice to have – however, you know, you want to have it time located in the discourse. So if we tie the overlap code to the first word in the overlap, then you'll have a time marking. It will be independent of the time bins. However, these evolve, shrink, or whatever, increase. And so you could have different time bins for different purposes. And having it tied to the first word in an overlap segment is unique, you know, anchored, clear. And it would just end up on a separate ribbon. So the overlap coding is going to be easy with respect to that. You look puzzled. I just – I don't quite understand what these things are. What, the codes themselves? Overlap codes. I'm not sure what that is. Well, I mean, is that – It probably doesn't matter. I mean, it's not for the topic of this meeting. No. But the idea is just to have a separate green ribbon, you know, and let's say that this is a time bin. There's a word here. It's the first word of an overlapping segment of any length, overlapping with any other segment of any length. And then you can indicate that this here was perhaps a back channel, or you can say that it was usurping of the turn, or you could, you know, any number of categories. But the fact is you have it time tagged in a way that's independent of the particular time bin that the word ends up in, if it's a large unit or a small unit, or we change the boundaries of the units. Right. It's still unique and fits with the format, flexible, all that. It would be nice – this is sort of regarding – it's related but not directly to the topic of discussion, but when it comes to annotations, you often find yourself in the situation where you have different annotations of the same, say, word sequence. Okay. And sometimes the word sequences even differ slightly because they were edited in one place but not the other. So once this data gets out there, some people might start annotating this for, I don't know, dialogue acts or, you know, topics or what the heck. You know, there's a zillion things that people might annotate this for. And the only thing that is really sort of common among all the various versions of this data is the word sequence or approximating. 
+SPEAKER 2 0:39:45
+Or the time. 
+SPEAKER 1 0:39:46
+Or the times. But, see, if you annotate dialogue acts, you don't necessarily want to – or topics, you don't really want to be dealing with time marks. It's much more efficient for them to just see the word sequence, right? I mean, most people aren't as sophisticated as we are here with, you know, time alignments and stuff. So the point is – You mentioned some names on the – Right. So my point is that you're going to end up with word sequences that are differently annotated. And you want some tool that is able to sort of merge these different annotations back into a single version. Okay? And we had this problem very massively at SRI when we worked a while back on dialogue acts as well as, you know, what was it? 
+SPEAKER 2 0:40:45
+Well, all the switch words. 
+SPEAKER 1 0:40:46
+Patterns, types, automatic punctuation and stuff like that. Because we had one set of annotations that were based on one version of the transcripts with a particular segmentation. And then we had another version that was based on a different, slightly edited version of the transcripts with a different segmentation. So we had these two different versions which were, you know, you could tell they were from the same source, but they weren't identical. So it was extremely hard to reliably merge these two back together to correlate the information from the different annotations. Yeah. I don't see any way that file formats are going to help us with that. No. It's all a question of semantic. No. But once you have a file format, I can imagine writing – not personally, but someone – writing a tool that is essentially an alignment tool. Yeah. That mediates between various versions. And sort of like, you know, you have this thing in Unix where you have – Diff. Wdiff. There's the diff that actually tries to reconcile different – two diffs based on the same original. Something like that. But operating on these lattices that are really what's behind this annotation format. There's actually a diff library you can use to do things like that. So somewhere in the API you would like to have, like, a merge or some function that merges two. Yeah. I think it's going to be very hard. Any sort of structured anything when you try to merge is really, really hard because the hard part isn't the file format. The hard part is specifying what you mean by merge. 
+SPEAKER 2 0:42:27
+Exactly. 
+SPEAKER 1 0:42:28
+And that's very difficult. 
+SPEAKER 2 0:42:29
+But the one thing that would work here actually that is more reliable than the utterances is the speaker ons and offs. So if you have a good – 
+SPEAKER 1 0:42:38
+But this is exactly what I mean is that the problem – 
+SPEAKER 2 0:42:41
+You just need to know what to tie it to. Yeah. 
+SPEAKER 1 0:42:43
+Exactly. The problem is saying what are the semantics? What do you mean by merge? Right. So just to let you know, we clued it by doing – both were based on words. So we had two versions of the same words sprinkled with different tags. And then you did diff. And we did diff. Exactly. Yeah. That's just what I thought. But it had lots of errors and things would end up in the wrong order and so forth. So if you had a more – it was a kludge because it was basically reducing everything to – Textual. To textual alignment. 
+SPEAKER 2 0:43:24
+But isn't that something where whoever – if the people who are making changes, say in the transcripts, because this all happened when the transcripts were different. If they tie it to something, like if they tied it to the acoustic segment, if they – you know what I mean? If they tied it to an acoustic segment and we had the time marks, 
+SPEAKER 1 0:43:44
+that would help. 
+SPEAKER 2 0:43:45
+But the problem is, exactly as Adam said, that you get – you don't have that information or it's lost in the merge somehow. 
+SPEAKER 1 0:43:53
+Can I ask one question? It seems to me that we will have an official version of the corpus, which will be only one version in terms of the words, as far as the words are concerned. We'd still have the merging issue maybe if coding were done independently of the – And you're going to get that because if the data gets out, people will do all kinds of things to it. And several years from now, you might want to look into the prosody of referring expressions. And someone at the University of who knows where has annotated the referring expressions. So you want to get that annotation and bring it back in line with your data. But unfortunately, they've also hand-edited it. 
+SPEAKER 2 0:44:35
+But they've also – exactly. And so that's exactly what we should somehow, when you distribute the data, say that – have some way of knowing how to merge it back in and asking people to – 
+SPEAKER 1 0:44:45
+What's wrong with doing times? 
+SPEAKER 2 0:44:48
+Yeah, time is the – 
+SPEAKER 1 0:44:50
+Well – Time is passing. Times are – What if they haven't notated? 
+SPEAKER 2 0:44:56
+He's a language modeling person. 
+SPEAKER 1 0:44:58
+So imagine – I think his example is a good one. Imagine that this person who developed the corpus of the referring expressions didn't include time. He included references to words. He said that at this word is when it happened. Or she. 
+SPEAKER 2 0:45:12
+But still they – 
+SPEAKER 1 0:45:13
+Exactly. Sure. But what if they changed the words? Well, but you have some anchoring point. You couldn't have changed all of them. But can they change the words without changing the time of the word? The point is that they may have annotated it off a word transcript that isn't the same as our word transcript. So how do you merge it back in? I understand what you're saying. And I guess the answer is it's going to be different every time. It's just going to be – 
+SPEAKER 2 0:45:40
+You only know the boundaries. 
+SPEAKER 1 0:45:41
+It's exactly what I said before, which is that what do you mean by merge? So in this case where you have the words and you don't have the times, well, what do you mean by merge? If you tell me what you mean, I can write a program to do it. Right. 
+SPEAKER 2 0:45:52
+You can merge at the level of the representation that the other person preserved. Right. 
+SPEAKER 1 0:45:56
+And that's about all you can do. 
+SPEAKER 2 0:45:57
+And beyond that, all you know is relative ordering, and sometimes even that is wrong. 
+SPEAKER 1 0:46:00
+So in this one, you would have to do a best match between the word sequences, extract the times from the best match of theirs to yours, and use that. 
+SPEAKER 2 0:46:10
+And then infer that their time marks are somewhere in between. Right. 
+SPEAKER 1 0:46:13
+Yeah, exactly. But it could be that they just – it could be that they lost certain utterances. Right, exactly. So it could get very, very ugly. 
+SPEAKER 2 0:46:20
+Definitely. All right. Well, I guess I didn't want to keep people too long, and Adam wanted people – I'll read the digits. If anyone else offers to, that would be great. If not, I guess – 
+SPEAKER 1 0:46:30
+The more digits, the better. Okay, this is – Thanks a lot. 
+SPEAKER 2 0:46:33
+It's really helpful. I mean, Adam and Don will sort of meet, and I think that's great. 
+SPEAKER 1 0:46:37
+Very useful.

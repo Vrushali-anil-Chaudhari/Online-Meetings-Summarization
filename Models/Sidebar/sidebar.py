@@ -170,7 +170,7 @@ def transtoeng(filepath):
 app = Flask(__name__)
 cors = CORS(app)
 @app.route("/sidebar", methods=["POST","OPTIONS"])
-def summary():
+def sidebar():
     if not request.files:
         return {"error": "No file found"}
     data =  request.form['data']
